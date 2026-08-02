@@ -1,6 +1,7 @@
 # 增加HF_ENDPOINT，避免Connection aborted. 
-import os
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+# import os
+
+# os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -9,7 +10,12 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 model_id = "Qwen/Qwen1.5-0.5B-Chat"
 
 # 设置设备，优先使用GPU
-device = "cuda" if torch.cuda.is_available() else "cpu"
+if torch.backends.mps.is_available():
+    device = "mps"
+elif torch.cuda.is_available():
+    device = "cuda"
+else:
+    device = "cpu"
 print(f"Using device: {device}")
 
 # 加载分词器
