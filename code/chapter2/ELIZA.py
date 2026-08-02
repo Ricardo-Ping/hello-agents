@@ -9,7 +9,7 @@ rules = {
         "Are you sure you need {0}?"
     ],
     r'Why don\'t you (.*)\?': [
-        "Do you really think I don't {0}?",
+        "Do you really think I don't {0}?", 
         "Perhaps eventually I will {0}.",
         "Do you really want me to {0}?"
     ],
@@ -21,7 +21,7 @@ rules = {
     r'I am (.*)': [
         "Did you come to me because you are {0}?",
         "How long have you been {0}?",
-        "How do you feel about being {0}?"
+        "How do you feel about being {0}?" 
     ],
     r'.* mother .*': [
         "Tell me more about your mother.",

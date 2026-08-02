@@ -1,3 +1,9 @@
+"""
+驱动真实 LLM 的关键在于提示工程（Prompt Engineering）。我们需要设计一个“指令模板”，告诉 LLM 它
+应该扮演什么角色、拥有哪些工具、以及如何格式化它的思考和行动。这是我们智能体的“说明书”，它将作
+为system_prompt 传递给 LLM
+"""
+
 AGENT_SYSTEM_PROMPT = """
 你是一个智能旅行助手。你的任务是分析用户的请求，并使用可用工具一步步地解决问题。
 
@@ -12,7 +18,7 @@ Thought: [你的思考过程和下一步计划]
 Action: [你要执行的具体行动]
 
 Action的格式必须是以下之一：
-1. 调用工具：function_name(arg_name="arg_value")
+1. 调用工具：function_name(arg_name="arg_value") 
 2. 结束任务：Finish[最终答案]
 
 # 重要提示:
@@ -25,7 +31,7 @@ Action的格式必须是以下之一：
 
 
 import requests
-
+# 查询真实天气,我们将使用免费的天气查询服务 wttr.in ，它能以 JSON 格式返回指定城市的天气数据
 def get_weather(city: str) -> str:
     """
     通过调用 wttr.in API 查询真实的天气信息。
@@ -34,7 +40,7 @@ def get_weather(city: str) -> str:
     url = f"https://wttr.in/{city}?format=j1"
     
     try:
-        # 发起网络请求
+        # 发起网络请求 
         response = requests.get(url)
         # 检查响应状态码是否为200 (成功)
         response.raise_for_status() 
@@ -139,13 +145,16 @@ class OpenAICompatibleClient:
             return "错误：调用语言模型服务时出错。"
 
 import re
+from dotenv import load_dotenv
+# 加载.env
+load_dotenv()
 
 # --- 1. 配置LLM客户端 ---
 # 请根据您使用的服务，将这里替换成对应的凭证和地址
-API_KEY = "YOUR_API_KEY"
-BASE_URL = "YOUR_BASE_URL"
-MODEL_ID = "YOUR_MODEL_ID"
-os.environ['TAVILY_API_KEY'] = "YOUR_TAVILY_API_KEY"
+API_KEY = os.getenv("DEEPSEEK_API_KEY")
+BASE_URL = os.getenv("DEEPSEEK_BASE_URL")
+MODEL_ID = os.getenv("DEEPSEEK_MODEL")
+# os.environ['TAVILY_API_KEY'] = os.environ.get("TAVILY_API_KEY")
 
 llm = OpenAICompatibleClient(
     model=MODEL_ID,
@@ -154,7 +163,7 @@ llm = OpenAICompatibleClient(
 )
 
 # --- 2. 初始化 ---
-user_prompt = "你好，请帮我查询一下今天北京的天气，然后根据天气推荐一个合适的旅游景点。"
+user_prompt = "你好，请帮我查询一下今天上海的天气，然后根据天气推荐一个合适的旅游景点。"
 prompt_history = [f"用户请求: {user_prompt}"]
 
 print(f"用户输入: {user_prompt}\n" + "="*40)
@@ -167,8 +176,8 @@ for i in range(5): # 设置最大循环次数
     full_prompt = "\n".join(prompt_history)
     
     # 3.2. 调用LLM进行思考
-    llm_output = llm.generate(full_prompt, system_prompt=AGENT_SYSTEM_PROMPT)
-    # 模型可能会输出多余的Thought-Action，需要截断
+    llm_output = llm.generate(full_prompt, system_prompt=AGENT_SYSTEM_PROMPT)  # prompt: str, system_prompt: str
+    # 模型可能会输出多余的Thought-Action，需要截断  每次只输出一对 Thought-Action
     match = re.search(r'(Thought:.*?Action:.*?)(?=\n\s*(?:Thought:|Action:|Observation:)|\Z)', llm_output, re.DOTALL)
     if match:
         truncated = match.group(1).strip()
