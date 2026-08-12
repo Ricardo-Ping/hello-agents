@@ -59,16 +59,19 @@ class ThreeKingdomsWerewolfGame:
         
         agent = ReActAgent(
             name=name,
+            # 身份和对应的提示词
             sys_prompt=ChinesePrompts.get_role_prompt(role, character),
             model=DashScopeChatModel(
                 model_name="qwen-max",
                 api_key=os.environ["DASHSCOPE_API_KEY"],
                 enable_thinking=True,
             ),
+            # formatter：如何把多智能体消息整理后交给模型
             formatter=DashScopeMultiAgentFormatter(),
         )
         
         # 角色身份确认
+        # 主持人宣布该玩家的身份
         await agent.observe(
             await self.moderator.announce(
                 f"【{name}】你在这场三国狼人杀中扮演{GameRoles.get_role_desc(role)}，"
@@ -135,6 +138,7 @@ class ThreeKingdomsWerewolfGame:
                     await wolf(structured_model=DiscussionModelCN)
             
             # 投票击杀
+            # 关闭狼人消息中心 werewolves_hub 的自动广播功能
             werewolves_hub.set_auto_broadcast(False)
             kill_votes = await fanout_pipeline(
                 self.werewolves,

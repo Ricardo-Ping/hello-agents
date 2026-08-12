@@ -8,9 +8,23 @@ authors = [
 ]
 requires-python = ">=3.10,<3.11"
 dependencies = [
+    "agentscope==1.0.2",
+    "autogen-agentchat>=0.7.5",
+    "autogen-ext[azure,openai]>=0.7.5",
+    "camel-ai==0.2.90",
+    "colorama>=0.4.6",
+    "dashscope>=1.26.6",
     "dotenv>=0.9.9",
+    "google-search-results>=2.4.2",
+    "langchain-openai>=1,<2",
+    "langgraph>=1,<2",
+    "mcp>=1.13,<2",
     "openai>=2.52.0",
+    "pandas>=2.3.3",
+    "plotly>=6.9.0",
+    "python-dotenv>=1.2.2",
     "requests>=2.34.2",
+    "streamlit>=1.61.1",
     "tavily>=1.1.0",
     "torch>=2.13.0",
     "transformers>=5.14.1",

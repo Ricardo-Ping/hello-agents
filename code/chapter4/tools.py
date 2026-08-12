@@ -29,12 +29,16 @@ def search(query: str) -> str:
         results = client.get_dict()
         
         # 智能解析：优先寻找最直接的答案
+        # 答案列表：多个直接答案或列表型答案，["俄罗斯","加拿大","中国","美国"]
         if "answer_box_list" in results:
             return "\n".join(results["answer_box_list"])
+        # 直接答案
         if "answer_box" in results and "answer" in results["answer_box"]:
             return results["answer_box"]["answer"]
+        # 知识图谱
         if "knowledge_graph" in results and "description" in results["knowledge_graph"]:
             return results["knowledge_graph"]["description"]
+        # 普通网页搜索
         if "organic_results" in results and results["organic_results"]:
             # 如果没有直接答案，则返回前三个有机结果的摘要
             snippets = [

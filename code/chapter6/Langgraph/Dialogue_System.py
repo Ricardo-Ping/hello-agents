@@ -20,8 +20,9 @@ from tavily import TavilyClient
 load_dotenv()
 
 # 定义状态结构
+# 定义全局状态的数据结构（state）
 class SearchState(TypedDict):
-    messages: Annotated[list, add_messages]
+    messages: Annotated[list, add_messages]  # 对话历史
     user_query: str        # 用户查询
     search_query: str      # 优化后的搜索查询
     search_results: str    # Tavily搜索结果
@@ -30,9 +31,9 @@ class SearchState(TypedDict):
 
 # 初始化模型和Tavily客户端
 llm = ChatOpenAI(
-    model=os.getenv("LLM_MODEL_ID", "gpt-4o-mini"),
+    model=os.getenv("LLM_MODEL_ID"),
     api_key=os.getenv("LLM_API_KEY"),
-    base_url=os.getenv("LLM_BASE_URL", "https://api.openai.com/v1"),
+    base_url=os.getenv("LLM_BASE_URL"),
     temperature=0.7
 )
 
@@ -61,7 +62,7 @@ def understand_query_node(state: SearchState) -> SearchState:
 
     response = llm.invoke([SystemMessage(content=understand_prompt)])
     
-    # 提取搜索关键词
+    # 解析LLM的输出，提取搜索关键词
     response_text = response.content
     search_query = user_message  # 默认使用原始查询
     
@@ -136,10 +137,8 @@ def generate_answer_node(state: SearchState) -> SearchState:
     if state["step"] == "search_failed":
         # 如果搜索失败，基于LLM知识回答
         fallback_prompt = f"""搜索API暂时不可用，请基于您的知识回答用户的问题：
-
-用户问题：{state['user_query']}
-
-请提供一个有用的回答，并说明这是基于已有知识的回答。"""
+        用户问题：{state['user_query']}
+        请提供一个有用的回答，并说明这是基于已有知识的回答。"""
         
         response = llm.invoke([SystemMessage(content=fallback_prompt)])
         
@@ -152,17 +151,17 @@ def generate_answer_node(state: SearchState) -> SearchState:
     # 基于搜索结果生成答案
     answer_prompt = f"""基于以下搜索结果为用户提供完整、准确的答案：
 
-用户问题：{state['user_query']}
+    用户问题：{state['user_query']}
 
-搜索结果：
-{state['search_results']}
+    搜索结果：
+    {state['search_results']}
 
-请要求：
-1. 综合搜索结果，提供准确、有用的回答
-2. 如果是技术问题，提供具体的解决方案或代码
-3. 引用重要信息的来源
-4. 回答要结构清晰、易于理解
-5. 如果搜索结果不够完整，请说明并提供补充建议"""
+    请要求：
+    1. 综合搜索结果，提供准确、有用的回答
+    2. 如果是技术问题，提供具体的解决方案或代码
+    3. 引用重要信息的来源
+    4. 回答要结构清晰、易于理解
+    5. 如果搜索结果不够完整，请说明并提供补充建议"""
 
     response = llm.invoke([SystemMessage(content=answer_prompt)])
     
@@ -188,7 +187,8 @@ def create_search_assistant():
     workflow.add_edge("answer", END)
     
     # 编译图
-    memory = InMemorySaver()
+    # 创建内存检查点存储器
+    memory = InMemorySaver() # 负责把工作流执行过程中的状态保存在当前 Python 进程的内存中
     app = workflow.compile(checkpointer=memory)
     
     return app
@@ -237,6 +237,7 @@ async def main():
             print("\n" + "="*60)
             
             # 执行工作流
+            # 使用 initial_state 作为初始状态，按照 config 中的配置异步、流式运行 LangGraph 工作流
             async for output in app.astream(initial_state, config=config):
                 for node_name, node_output in output.items():
                     if "messages" in node_output and node_output["messages"]:

@@ -46,11 +46,11 @@ class ReActAgent:
             response_text = self.llm_client.think(messages=messages)
             if not response_text:
                 print("错误：LLM未能返回有效响应。"); break
-
+            # 解析模型返回的文本 self._parse_output
             thought, action = self._parse_output(response_text)
             if thought: print(f"🤔 思考: {thought}")
             if not action: print("警告：未能解析出有效的Action，流程终止。"); break
-            
+            # startswith() 用于判断字符串是否以指定内容开头
             if action.startswith("Finish"):
                 # 如果是Finish指令，提取最终答案并结束
                 final_answer = self._parse_action_input(action)

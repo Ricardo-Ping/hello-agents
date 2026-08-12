@@ -9,12 +9,12 @@ import os
 load_dotenv()
 LLM_API_KEY = os.getenv("LLM_API_KEY")
 LLM_BASE_URL = os.getenv("LLM_BASE_URL")
-LLM_MODEL = os.getenv("LLM_MODEL")
+LLM_MODEL_ID = os.getenv("LLM_MODEL_ID")
 
-#创建模型,在这里以Qwen为例,调用的百炼大模型平台API
+#创建模型,在这里以DEEPSEEK为例
 model = ModelFactory.create(
-    model_platform=ModelPlatformType.QWEN,
-    model_type=LLM_MODEL,
+    model_platform=ModelPlatformType.DEEPSEEK,
+    model_type=LLM_MODEL_ID,
     url=LLM_BASE_URL,
     api_key=LLM_API_KEY
 )
@@ -30,9 +30,12 @@ task_prompt = """
 5. 结构清晰，包含引言、核心章节和总结
 """
 
+# Fore.YELLOW 和 Fore.CYAN 是 colorama 库提供的终端前景色代码，用来改变后续打印文字的颜色
 print(Fore.YELLOW + f"协作任务:\n{task_prompt}\n")
 
 # 初始化角色扮演会话
+# AI 作家作为 "user"，负责提出写作结构和要求
+# AI 心理学家作为 "assistant"，负责提供专业知识和内容
 role_play_session = RolePlaying(
     assistant_role_name="心理学家", 
     user_role_name="作家", 
@@ -44,10 +47,12 @@ print(Fore.CYAN + f"具体任务描述:\n{role_play_session.task_prompt}\n")
 
 # 开始协作对话
 chat_turn_limit, n = 30, 0
+# 调用 init_chat() 来获得由 AI 生成的初始对话消息
 input_msg = role_play_session.init_chat()
 
 while n < chat_turn_limit:
     n += 1
+    # step() 方法驱动一轮完整的对话，AI 用户和 AI 助理各发言一次
     assistant_response, user_response = role_play_session.step(input_msg)
     
     print_text_animated(Fore.BLUE + f"作家:\n\n{user_response.msg.content}\n")

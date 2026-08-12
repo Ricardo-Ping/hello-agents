@@ -20,9 +20,18 @@ from autogen_agentchat.ui import Console
 def create_openai_model_client():
     """创建 OpenAI 模型客户端用于测试"""
     return OpenAIChatCompletionClient(
-        model=os.getenv("LLM_MODEL_ID", "gpt-4o"),
+        model=os.getenv("LLM_MODEL_ID"),
         api_key=os.getenv("LLM_API_KEY"),
-        base_url=os.getenv("LLM_BASE_URL", "https://api.openai.com/v1")
+        base_url=os.getenv("LLM_BASE_URL"),
+        model_info={
+        "function_calling": True,
+        "max_tokens": 4096,
+        "context_length": 32768,
+        "vision": False,
+        "json_output": True,
+        "family": "deepseek",
+        "structured_output": True,
+    }
     )
 
 def create_product_manager(model_client):
@@ -163,7 +172,9 @@ async def run_software_development_team():
     print("🚀 启动 AutoGen 软件开发团队协作...")
     print("=" * 60)
     
-    # 使用 Console 来显示对话过程
+    # 使用 Console 来显示对话过程，Console是 AutoGen 提供的终端显示工具
+    # team_chat.run_stream(task=task)：让这个团队开始处理 task
+    # run_stream() 和 Console() 使用的是异步执行方式，所以需要使用 await
     result = await Console(team_chat.run_stream(task=task))
     
     print("\n" + "=" * 60)

@@ -9,7 +9,7 @@ class Memory:
     一个简单的短期记忆模块，用于存储智能体的行动与反思轨迹。
     """
     def __init__(self):
-        # 初始化一个空列表来存储所有记录
+        # 初始化一个空列表来存储所有记录，按顺序存储每一次的行动和反思
         self.records: List[Dict[str, Any]] = []
 
     def add_record(self, record_type: str, content: str):
@@ -39,6 +39,7 @@ class Memory:
         """
         获取最近一次的执行结果 (例如，最新生成的代码)。
         """
+        # reversed 从后往前遍历 self.records 中的元素，但不会修改原列表。
         for record in reversed(self.records):
             if record['type'] == 'execution':
                 return record['content']
