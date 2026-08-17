@@ -1,5 +1,5 @@
 [project]
-name = "hello-agents"
+name = "hello-agents-learning"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -16,6 +16,7 @@ dependencies = [
     "dashscope>=1.26.6",
     "dotenv>=0.9.9",
     "google-search-results>=2.4.2",
+    "hello-agents==0.1.1",
     "langchain-openai>=1,<2",
     "langgraph>=1,<2",
     "mcp>=1.13,<2",
@@ -36,3 +37,6 @@ hello-agents = "hello_agents:main"
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "hello_agents"

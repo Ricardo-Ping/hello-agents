@@ -1,15 +1,15 @@
 # my_calculator_tool.py
-import ast
+import ast # Abstract Syntax Tree，即“抽象语法树”
 import operator
 import math
-from hello_agents import ToolRegistry
+from hello_agents import ToolRegistry  # 工具注册表
 
 def my_calculate(expression: str) -> str:
     """简单的数学计算函数"""
     if not expression.strip():
         return "计算表达式不能为空"
 
-    # 支持的基本运算
+    # 支持的基本运算，建立了一个映射表
     operators = {
         ast.Add: operator.add,      # +
         ast.Sub: operator.sub,      # -
@@ -24,26 +24,32 @@ def my_calculate(expression: str) -> str:
     }
 
     try:
+        # mode="eval" 表示输入内容必须是一个表达式
         node = ast.parse(expression, mode='eval')
         result = _eval_node(node.body, operators, functions)
         return str(result)
     except:
         return "计算失败，请检查表达式格式"
 
+# 递归计算 AST
 def _eval_node(node, operators, functions):
     """简化的表达式求值"""
+    # 处理数字常量
     if isinstance(node, ast.Constant):
         return node.value
+    # 处理二元运算
     elif isinstance(node, ast.BinOp):
         left = _eval_node(node.left, operators, functions)
         right = _eval_node(node.right, operators, functions)
         op = operators.get(type(node.op))
         return op(left, right)
+    # 处理函数调用
     elif isinstance(node, ast.Call):
-        func_name = node.func.id
+        func_name = node.func.id  # "sqrt"
         if func_name in functions:
             args = [_eval_node(arg, operators, functions) for arg in node.args]
             return functions[func_name](*args)
+    # 处理变量名（如 pi）
     elif isinstance(node, ast.Name):
         if node.id in functions:
             return functions[node.id]

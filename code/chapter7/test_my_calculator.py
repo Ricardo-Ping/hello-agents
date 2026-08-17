@@ -1,4 +1,6 @@
 # test_my_calculator.py
+import re
+
 from dotenv import load_dotenv
 from my_calculator_tool import create_calculator_registry
 
@@ -44,8 +46,16 @@ def test_with_simple_agent():
 
     print(f"用户问题: {user_question}")
 
-    # 使用工具计算
-    calc_result = registry.execute_tool("my_calculator", "sqrt(16) + 2 * 3")
+    # 从用户问题中提取“计算”后面的数学表达式
+    match = re.search(r"计算\s*(.+?)[？?。]?$", user_question)
+    if not match:
+        raise ValueError(f"无法从用户问题中提取计算表达式: {user_question}")
+
+    expression = match.group(1).strip()
+    print(f"提取的表达式: {expression}")
+
+    # 使用提取出来的表达式调用计算工具
+    calc_result = registry.execute_tool("my_calculator", expression)
     print(f"计算结果: {calc_result}")
 
     # 构建最终回答
@@ -54,10 +64,8 @@ def test_with_simple_agent():
     ]
 
     print("\n🎯 SimpleAgent的回答:")
-    response = llm.think(final_messages)
-    for chunk in response:
-        print(chunk, end="", flush=True)
-    print("\n")
+    response = llm.invoke(final_messages)
+    print(response)
 
 if __name__ == "__main__":
     test_calculator_tool()
