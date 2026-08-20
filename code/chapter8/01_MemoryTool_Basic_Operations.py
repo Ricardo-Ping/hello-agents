@@ -3,6 +3,27 @@
 """
 代码示例 01: MemoryTool基础操作
 展示MemoryTool的核心execute方法和基本操作
+
+HelloAgents记忆系统
+├── 基础设施层 (Infrastructure Layer)
+│   ├── MemoryManager - 记忆管理器（统一调度和协调）
+│   ├── MemoryItem - 记忆数据结构（标准化记忆项）
+│   ├── MemoryConfig - 配置管理（系统参数设置）
+│   └── BaseMemory - 记忆基类（通用接口定义）
+├── 记忆类型层 (Memory Types Layer)
+│   ├── WorkingMemory - 工作记忆（临时信息，TTL管理）
+│   ├── EpisodicMemory - 情景记忆（具体事件，时间序列）
+│   ├── SemanticMemory - 语义记忆（抽象知识，图谱关系）
+│   └── PerceptualMemory - 感知记忆（多模态数据）
+├── 存储后端层 (Storage Backend Layer)
+│   ├── QdrantVectorStore - 向量存储（高性能语义检索）
+│   ├── Neo4jGraphStore - 图存储（知识图谱管理）
+│   └── SQLiteDocumentStore - 文档存储（结构化持久化）
+└── 嵌入服务层 (Embedding Service Layer)
+    ├── DashScopeEmbedding - 通义千问嵌入（云端API）
+    ├── LocalTransformerEmbedding - 本地嵌入（离线部署）
+    └── TFIDFEmbedding - TFIDF嵌入（轻量级兜底）
+
 """
 
 from dotenv import load_dotenv
